@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        notifiers=notifiers_cli.core:entry_point
+    

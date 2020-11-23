@@ -1,0 +1,4 @@
+pytest
+flake8
+tox
+wemake-python-styleguide

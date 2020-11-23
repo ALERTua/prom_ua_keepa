@@ -1,0 +1,4 @@
+requests
+bs4
+global_logger
+notifiers
