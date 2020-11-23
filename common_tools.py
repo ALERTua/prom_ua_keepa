@@ -35,8 +35,6 @@ def liters(str_):
 def telegram_notify(message):
     telegram.notify(message=message, token=API_TOKEN, chat_id=CHAT_ID, disable_web_page_preview=True,
                     disable_notification=False)
-    # from telegram_notification.telegram_notifier import basic_notifier
-    # basic_notifier(logger_name='prom_ua', token_id=API_TOKEN, chat_id=CHAT_ID, message=message)
 
 
 if __name__ == '__main__':
