@@ -1,4 +1,5 @@
 import os
+import sys
 
 from global_logger import Log
 from collections import namedtuple
@@ -77,6 +78,8 @@ Price per liter: {price_per_volume_}"""
 
 
 def main():
+    args = sys.argv[1:]
+
     output = {}
     for query in QUERIES:
         try:
@@ -89,6 +92,9 @@ def main():
             LOG.green(message)
             tools.telegram_notify(message)
 
+    if args and 'silent' in args:
+        return
+
     msgs = []
     for query, products in output.items():
         lowest = products[0]  # type: Product
@@ -100,11 +106,13 @@ trigger on {query.price_per_volume_trigger} ppv"""
     _msgs = "\n\n".join(msgs)
     LOG.green(_msgs)
     tools.telegram_notify(_msgs)
+
+    if args and 'pause' in args:
+        os.system('pause')
     return output
 
 
 if __name__ == '__main__':
     LOG.verbose = True
     output_ = main()
-    os.system('pause')
     print("")
