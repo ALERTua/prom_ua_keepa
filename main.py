@@ -22,6 +22,11 @@ QUERIES = [
         url=f'{BASE}/search?search_term=laphroaig&sort=price&category=20401&price_local__gte&price_local__lte=1750',
         price_per_volume_trigger=1300,
     ),
+    Query(
+        name='Talisker',
+        url=f'{BASE}/search?search_term=talisker+10&sort=price&category=20401&price_local__gte&price_local__lte=1500',
+        price_per_volume_trigger=1300,
+    ),
 
 ]
 
