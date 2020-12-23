@@ -13,6 +13,11 @@ Product = namedtuple('Product', ('url', 'name', 'price', 'volume', 'price_per_vo
 BASE = 'https://kiev.prom.ua'
 QUERIES = [
     Query(
+        name='Talisker',
+        url=f'{BASE}/search?search_term=talisker+10&sort=price&category=20401&price_local__gte&price_local__lte=1500',
+        price_per_volume_trigger=1300,
+    ),
+    Query(
         name='Ardbeg',
         url=f'{BASE}/search?search_term=ardbeg&sort=price&category=20401&price_local__gte&price_local__lte=1750',
         price_per_volume_trigger=1400,
@@ -20,11 +25,6 @@ QUERIES = [
     Query(
         name='Laphroaig',
         url=f'{BASE}/search?search_term=laphroaig&sort=price&category=20401&price_local__gte&price_local__lte=1750',
-        price_per_volume_trigger=1300,
-    ),
-    Query(
-        name='Talisker',
-        url=f'{BASE}/search?search_term=talisker+10&sort=price&category=20401&price_local__gte&price_local__lte=1500',
         price_per_volume_trigger=1300,
     ),
 
@@ -37,6 +37,7 @@ def process_query(query):
     product_gallery = soup.find('div', attrs={'data-qaid': 'product_gallery'})
     product_blocks = product_gallery.find_all('div', attrs={'data-qaid': 'product_block'})
     product_blocks = [i for i in product_blocks if hasattr(i, 'text') and i.text]
+    price_per_volume_trigger = query.price_per_volume_trigger
 
     output = []
     for block in product_blocks:
@@ -58,7 +59,6 @@ def process_query(query):
         product_price = block.find('span', attrs={'data-qaid': 'product_price'})
         product_price = int(tools.extract_number(product_price.text))
 
-        price_per_volume_trigger = query.price_per_volume_trigger
         if price_per_volume_trigger:
             product_volume = tools.liters(product_name)
             price_per_volume_ = tools.price_per_volume(product_volume, product_price)
@@ -78,7 +78,10 @@ Price per liter: {price_per_volume_}"""
         # noinspection PyTypeChecker
         LOG.printer(product)
         output.append(product)
-    output.sort(key=lambda f: f.price)
+    if price_per_volume_trigger:
+        output.sort(key=lambda f: f.price_per_volume)
+    else:
+        output.sort(key=lambda f: f.price)
     return output
 
 
@@ -103,9 +106,11 @@ def main():
     msgs = []
     for query, products in output.items():
         lowest = products[0]  # type: Product
-        msg = f"""Lowest of '{query.name}' is:
+        msg = f"""Lowest of '{query.name}'
+{query.url}
 {lowest.name} @ {lowest.price}
 {lowest._asdict().get('price_per_volume', 'unknown')} ppv
+{lowest.url}
 trigger on {query.price_per_volume_trigger} ppv"""
         msgs.append(msg)
     _msgs = "\n\n".join(msgs)
