@@ -14,17 +14,17 @@ BASE = 'https://kiev.prom.ua'
 QUERIES = [
     Query(
         name='Talisker',
-        url=f'{BASE}/search?search_term=talisker+10&sort=price&category=20401&price_local__gte&price_local__lte=1500',
+        url=f'{BASE}/search?search_term=talisker+10&category=20401',
         price_per_volume_trigger=1300,
     ),
     Query(
         name='Ardbeg',
-        url=f'{BASE}/search?search_term=ardbeg&sort=price&category=20401&price_local__gte&price_local__lte=1750',
+        url=f'{BASE}/search?search_term=ardbeg&category=20401',
         price_per_volume_trigger=1400,
     ),
     Query(
         name='Laphroaig',
-        url=f'{BASE}/search?search_term=laphroaig&sort=price&category=20401&price_local__gte&price_local__lte=1750',
+        url=f'{BASE}/search?search_term=laphroaig&category=20401',
         price_per_volume_trigger=1300,
     ),
 
@@ -46,8 +46,8 @@ def process_query(query):
 
         product_presence_obj = block.find('span', attrs={'data-qaid': 'product_presence'})
         product_presence_text = product_presence_obj.text
-        # product_presence = product_presence_text == 'В наличии'
-        product_presence = product_presence_text != 'Нет в наличии'
+        product_presence = product_presence_text == 'В наличии'
+        # product_presence = product_presence_text != 'Нет в наличии'
         if not product_presence:
             LOG.printer(f"skipping item '{product_name}' as presence is '{product_presence_text}'")
             continue
@@ -57,6 +57,9 @@ def process_query(query):
         product_link = f'{BASE}{product_link}' if product_link else 'Unknown URL'
 
         product_price = block.find('span', attrs={'data-qaid': 'product_price'})
+        if not product_price:
+            continue
+
         product_price = int(tools.extract_number(product_price.text))
 
         if price_per_volume_trigger:
